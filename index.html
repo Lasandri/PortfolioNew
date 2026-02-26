@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Developer — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+:root {
+  --cream: #f7f3ee;
+  --white: #ffffff;
+  --ink: #111111;
+  --ink-light: #555555;
+  --ink-faint: #999999;
+  --accent: #c8a96e;
+  --accent2: #7c6ef0;
+  --card-bg: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --shadow: 0 20px 60px rgba(0,0,0,0.08);
+  --shadow-hover: 0 40px 80px rgba(0,0,0,0.15);
+  --radius: 20px;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ─── CURSOR ─── */
+.cursor { position: fixed; pointer-events: none; z-index: 9999; mix-blend-mode: multiply; }
+#cur-dot  { width: 8px; height: 8px; background: var(--ink); border-radius: 50%; transform: translate(-50%,-50%); transition: transform 0.1s; }
+#cur-ring { width: 36px; height: 36px; border: 1.5px solid var(--ink); border-radius: 50%; transform: translate(-50%,-50%); transition: all 0.18s ease; opacity: 0.4; }
+body { cursor: none; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 60px;
+  background: rgb(247, 243, 238);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.3s, background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+}
+nav.menu-open {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+  position: relative;
+  z-index: 600;
+  transition: color 0.3s;
+}
+/* Logo turns white when menu is open */
+nav.menu-open .logo { color: var(--white); }
+.logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 36px; align-items: center;
+}
+.nav-links a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-light);
+  transition: color 0.25s;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-cta {
+  background: var(--ink);
+  color: var(--white) !important;
+  padding: 10px 22px;
+  border-radius: 50px;
+}
+.nav-cta:hover { background: var(--accent2) !important; color: var(--white) !important; }
+
+/* ─── HAMBURGER BUTTON ─── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  cursor: none;
+  position: relative;
+  z-index: 600;
+  background: none;
+  border: none;
+  padding: 0;
+  gap: 0;
+}
+.hamburger span {
+  display: block;
+  width: 26px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: center;
+  position: absolute;
+}
+.hamburger span:nth-child(1) { transform: translateY(-8px); }
+.hamburger span:nth-child(2) { transform: translateY(0px); }
+.hamburger span:nth-child(3) { transform: translateY(8px); }
+
+/* Hamburger → X animation */
+.hamburger.open span:nth-child(1) { transform: translateY(0) rotate(45deg); background: var(--white); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(0) rotate(-45deg); background: var(--white); }
+
+/* overlay removed — panel is now fullscreen */
+
+/* ─── MOBILE NAV PANEL ─── */
+.mob-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 500;
+  background: #0a0a0a;
+  transform: translateY(-100%);
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1100px 48px 60px;
+  text-align: center;
+}
+.mob-panel.open {
+  transform: translateY(0);
+}
+
+/* Decorative accent line */
+.mob-panel::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--accent), var(--accent2), transparent);
+  opacity: 0.6;
+}
+
+.mob-nav-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 50px;
+}
+
+.mob-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 30px;
+  margin-top: 100px;
+  align-items: center;
+  width: 100%;
+}
+
+.mob-nav-links a {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(5.6rem, 10vw, 3.2rem);
+  font-weight: 900;
+  font-style: italic;
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  letter-spacing: -1px;
+  line-height: 1.25;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: block;
+  position: relative;
+  width: 100%;
+}
+
+.mob-nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: 0; height: 2px;
+  background: var(--accent);
+  transition: width 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.mob-nav-links a:hover {
+  color: var(--white);
+  transform: scale(1.04);
+}
+
+.mob-nav-links a:hover::after {
+  width: 60px;
+}
+
+.mob-nav-links a.mob-cta {
+  color: var(--accent);
+  margin-top: 10px;
+}
+.mob-nav-links a.mob-cta:hover {
+  color: #e8c98e;
+}
+
+/* Stagger animation for links when panel opens */
+.mob-panel.open .mob-nav-links a {
+  animation: mobLinkRise 0.5s ease forwards;
+  opacity: 0;
+}
+.mob-panel.open .mob-nav-links a:nth-child(1) { animation-delay: 0.15s; }
+.mob-panel.open .mob-nav-links a:nth-child(2) { animation-delay: 0.22s; }
+.mob-panel.open .mob-nav-links a:nth-child(3) { animation-delay: 0.29s; }
+.mob-panel.open .mob-nav-links a:nth-child(4) { animation-delay: 0.36s; }
+
+@keyframes mobLinkRise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mob-nav-footer {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 28px;
+  width: 100%;
+  text-align: center;
+}
+.mob-nav-footer p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.9;
+}
+.mob-nav-footer span {
+  color: var(--accent);
+}
+
+/* ─── HERO — Editorial Style ─── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 140px 40px 80px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  background: var(--cream);
+}
+
+#hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(200,169,110,0.10) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 80% 70%, rgba(124,110,240,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+.orb1 {
+  width: 340px; height: 340px;
+  background: radial-gradient(circle at 35% 35%, rgba(200,169,110,0.35), rgba(124,110,240,0.15), transparent 70%);
+  top: 8%; left: 3%;
+  filter: blur(2px);
+  animation: orbFloat1 8s ease-in-out infinite;
+}
+.orb2 {
+  width: 260px; height: 260px;
+  background: radial-gradient(circle at 60% 40%, rgba(124,110,240,0.3), rgba(200,169,110,0.1), transparent 70%);
+  bottom: 12%; right: 4%;
+  filter: blur(1px);
+  animation: orbFloat2 10s ease-in-out infinite;
+}
+.orb3 {
+  width: 160px; height: 160px;
+  background: radial-gradient(circle at 50% 50%, rgba(200,169,110,0.25), transparent 70%);
+  top: 30%; right: 12%;
+  filter: blur(1px);
+  animation: orbFloat3 7s ease-in-out infinite;
+}
+@keyframes orbFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(18px,-22px) scale(1.04)} 66%{transform:translate(-12px,14px) scale(0.97)} }
+@keyframes orbFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(-20px,16px) scale(1.05)} 70%{transform:translate(14px,-10px) scale(0.96)} }
+@keyframes orbFloat3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-10px,18px)} }
+
+.hero-editorial {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+}
+
+.hero-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  line-height: 1.15;
+  margin-bottom: 4px;
+  opacity: 0;
+  animation: rise 0.9s ease forwards;
+}
+.hero-line:nth-child(1) { animation-delay: 0.1s; }
+.hero-line:nth-child(2) { animation-delay: 0.25s; }
+.hero-line:nth-child(3) { animation-delay: 0.4s; }
+
+.ht-plain {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(2.6rem, 5.5vw, 5.2rem);
+  font-weight: 300;
+  color: var(--ink);
+  letter-spacing: -1px;
+}
+.ht-serif {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 5.8vw, 5.6rem);
+  font-weight: 900;
+  font-style: italic;
+  color: var(--ink);
+  letter-spacing: -2px;
+}
+.ht-accent { color: var(--accent2); }
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  vertical-align: middle;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  border: 3px solid rgba(255,255,255,0.9);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  cursor: none;
+}
+.hero-pill:hover { transform: scale(1.12) rotate(-4deg); }
+.hero-pill.pill-photo { width: 72px; height: 72px; }
+.hero-pill.pill-photo img { width: 100%; height: 100%; object-fit: cover; }
+.hero-pill.pill-icon { width: 66px; height: 66px; font-size: 2rem; background: var(--white); }
+.hero-pill.pill-lg { width: 82px; height: 82px; font-size: 2.4rem; background: linear-gradient(135deg, #1a0533, #3d1a78); }
+
+.hero-cube-wrap {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 72px; height: 72px;
+  flex-shrink: 0;
+  perspective: 240px;
+  cursor: none;
+}
+.hero-cube {
+  width: 48px; height: 48px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: spinCube 6s linear infinite;
+}
+.hero-cube-face {
+  position: absolute; inset: 0;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  border: 1.5px solid rgba(255,255,255,0.25);
+}
+.face-front  { background: rgba(124,110,240,0.85); transform: translateZ(24px); }
+.face-back   { background: rgba(200,169,110,0.85); transform: rotateY(180deg) translateZ(24px); }
+.face-right  { background: rgba(100,80,220,0.85);  transform: rotateY(90deg)  translateZ(24px); }
+.face-left   { background: rgba(180,140,80,0.85);  transform: rotateY(-90deg) translateZ(24px); }
+.face-top    { background: rgba(140,120,250,0.85); transform: rotateX(90deg)  translateZ(24px); }
+.face-bottom { background: rgba(160,120,60,0.85);  transform: rotateX(-90deg) translateZ(24px); }
+@keyframes spinCube {
+  0%   { transform: rotateX(0deg)   rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(540deg); }
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 36px auto 44px;
+  opacity: 0;
+  animation: rise 0.8s 0.65s forwards;
+}
+.hero-cta-row {
+  display: flex; gap: 14px; align-items: center; justify-content: center;
+  opacity: 0;
+  animation: rise 0.8s 0.85s forwards;
+}
+
+.btn-dark {
+  padding: 16px 36px;
+  background: var(--ink);
+  color: var(--white);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: none;
+}
+.btn-dark:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,110,240,0.3); }
+.btn-outline {
+  padding: 16px 36px;
+  border: 1.5px solid rgba(0,0,0,0.2);
+  color: var(--ink);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: none;
+}
+.btn-outline:hover { border-color: var(--ink); background: var(--ink); color: var(--white); }
+
+/* ─── MARQUEE ─── */
+.marquee-wrap {
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+  background: var(--white);
+}
+.marquee-track {
+  display: flex;
+  animation: marqueeScroll 18s linear infinite;
+  width: max-content;
+}
+.marquee-item {
+  display: flex; align-items: center; gap: 20px;
+  padding: 0 40px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.marquee-item span { color: var(--accent); font-style: normal; font-size: 1.2rem; }
+@keyframes marqueeScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ─── ABOUT ─── */
+#about {
+  padding: 140px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: block;
+}
+.about-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 4vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 28px;
+}
+.about-heading em { font-style: italic; color: var(--accent2); }
+.about-body { font-size: 1.05rem; line-height: 1.9; color: var(--ink-light); margin-bottom: 20px; }
+.skill-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+.chip {
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-light);
+  background: var(--white);
+  transition: all 0.3s;
+}
+.chip:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(124,110,240,0.05); }
+
+.about-right { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.stat-box {
+  background: transparent;
+  border-radius: 0;
+  padding: 32px 20px;
+  box-shadow: none;
+  transition: all 0.3s;
+  text-align: left;
+  position: relative;
+}
+.stat-box::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: var(--border);
+}
+.stat-box:nth-child(3)::after,
+.stat-box:nth-child(4)::after { display: none; }
+.stat-box:nth-child(1),
+.stat-box:nth-child(3) { border-right: 1px solid var(--border); }
+.stat-box.accent-box .stat-n { color: var(--accent2); }
+.stat-box.purple-box .stat-n { color: var(--accent); }
+.stat-n {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 7vw, 6rem);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ink);
+  display: block;
+  letter-spacing: -3px;
+}
+.stat-n::after {
+  content: '+';
+  font-size: 0.45em;
+  letter-spacing: 0;
+  opacity: 0.4;
+  vertical-align: super;
+}
+.stat-l {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+  color: var(--ink-faint);
+  display: block;
+}
+
+/* ─── PROJECTS ─── */
+#projects { padding: 140px 60px; background: var(--white); }
+.section-top {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 70px;
+}
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+}
+.section-heading em { font-style: italic; color: var(--accent2); }
+.view-all { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-light); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.25s; cursor: none; }
+.view-all:hover { color: var(--accent2); }
+.view-all::after { content: '→'; transition: transform 0.25s; }
+.view-all:hover::after { transform: translateX(4px); }
+
+.projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.proj-card {
+  background: var(--cream);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  border: 1px solid var(--border);
+  transform-style: preserve-3d;
+  will-change: transform;
+  cursor: none;
+}
+.proj-card:hover { box-shadow: var(--shadow-hover); }
+.proj-thumb {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem;
+}
+.proj-thumb .bg-gradient { position: absolute; inset: 0; }
+.proj-thumb .emoji { position: relative; z-index: 1; transition: transform 0.4s; }
+.proj-card:hover .emoji { transform: scale(1.15) rotate(-5deg); }
+.proj-body { padding: 28px; }
+.proj-num { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 2px; color: var(--ink-faint); margin-bottom: 10px; display: block; }
+.proj-title { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; margin-bottom: 10px; color: var(--ink); }
+.proj-desc { font-size: 0.88rem; line-height: 1.7; color: var(--ink-light); margin-bottom: 20px; }
+.proj-footer { display: flex; align-items: center; justify-content: space-between; }
+.proj-tags-mini { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag-mini { font-size: 0.65rem; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 50px; background: rgba(124,110,240,0.1); color: var(--accent2); letter-spacing: 0.5px; }
+.proj-arrow { width: 36px; height: 36px; background: var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0; transition: all 0.3s; }
+.proj-card:hover .proj-arrow { background: var(--accent2); transform: rotate(45deg); }
+.proj-featured { grid-column: span 2; }
+.proj-featured .proj-thumb { height: 280px; }
+
+/* ─── PROCESS ─── */
+#process { padding: 140px 60px; }
+.process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 60px; }
+.process-step {
+  padding: 40px 28px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--white);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.process-step::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(124,110,240,0.06), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.process-step:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+.process-step:hover::before { opacity: 1; }
+.step-num { font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 900; color: rgba(124,110,240,0.1); line-height: 1; margin-bottom: 16px; }
+.step-icon { font-size: 2rem; margin-bottom: 16px; display: block; }
+.step-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+.step-desc { font-size: 0.88rem; color: var(--ink-light); line-height: 1.7; }
+
+/* ─── CONTACT ─── */
+#contact {
+  padding: 140px 60px;
+  background: var(--ink);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+#contact .blob1 { background: var(--accent2); opacity: 0.12; top: -100px; left: -100px; }
+#contact .blob2 { background: var(--accent); opacity: 0.08; bottom: -100px; right: 0; }
+.contact-inner { max-width: 700px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+.contact-label { color: rgba(255,255,255,0.4); margin-bottom: 20px; font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 3px; display: block; }
+.contact-heading { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; line-height: 1.05; letter-spacing: -1.5px; margin-bottom: 24px; color: var(--white); }
+.contact-heading em { font-style: italic; color: var(--accent); }
+.contact-sub { font-size: 1.1rem; color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 50px; }
+.contact-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+.contact-form input, .contact-form textarea {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 18px 22px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s, background 0.3s;
+}
+.contact-form input::placeholder, .contact-form textarea::placeholder { color: rgba(255,255,255,0.3); }
+.contact-form input:focus, .contact-form textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
+.contact-form textarea { height: 140px; resize: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn-accent {
+  padding: 18px;
+  background: var(--accent);
+  color: var(--ink);
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  cursor: none;
+  transition: all 0.3s;
+  margin-top: 8px;
+}
+.btn-accent:hover { background: #d4b982; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(200,169,110,0.3); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 32px 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+}
+.footer-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: rgba(255,255,255,0.6); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.23,1,0.32,1), transform 0.8s cubic-bezier(0.23,1,0.32,1); }
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ─── SCROLL DRIFT CARDS SECTION ─── */
+#drift-cards {
+  padding: 120px 0;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.drift-bg-glow { position: absolute; border-radius: 50%; filter: blur(140px); pointer-events: none; }
+.drift-bg-glow.g1 { width: 700px; height: 700px; background: var(--accent2); opacity: 0.07; top: -200px; left: -200px; }
+.drift-bg-glow.g2 { width: 600px; height: 600px; background: var(--accent); opacity: 0.05; bottom: -150px; right: -150px; }
+.drift-header { text-align: center; margin-bottom: 70px; padding: 0 60px; position: relative; z-index: 2; }
+.drift-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 16px; }
+.drift-title { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; color: var(--white); }
+.drift-title em { font-style: italic; color: var(--accent); }
+.drift-row-wrap { overflow: hidden; margin-bottom: 20px; position: relative; }
+.drift-row-wrap::before,
+.drift-row-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 180px; z-index: 2; pointer-events: none; }
+.drift-row-wrap::before { left: 0; background: linear-gradient(to right, var(--ink), transparent); }
+.drift-row-wrap::after  { right: 0; background: linear-gradient(to left, var(--ink), transparent); }
+.drift-row { display: flex; gap: 20px; padding: 10px 0; will-change: transform; width: max-content; }
+
+.dcard { width: 280px; flex-shrink: 0; border-radius: 18px; overflow: hidden; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s; cursor: none; }
+.dcard:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-6px) scale(1.02); box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+.dcard-img { width: 100%; height: 170px; display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; overflow: hidden; }
+.dcard-img .dcard-grad { position: absolute; inset: 0; }
+.dcard-img .dcard-icon { position: relative; z-index: 1; transition: transform 0.4s; filter: drop-shadow(0 6px 20px rgba(0,0,0,0.5)); }
+.dcard:hover .dcard-icon { transform: scale(1.2) rotate(-8deg); }
+.dcard-info { padding: 18px 20px 20px; }
+.dcard-tag { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; display: block; }
+.dcard-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.dcard-sub { font-size: 0.75rem; color: rgba(255,255,255,0.38); line-height: 1.5; }
+.dcard-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.dcard-stars { color: var(--accent); font-size: 0.7rem; font-family: 'DM Mono', monospace; }
+.dcard-engine { font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  nav { padding: 18px 24px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  #hero { padding: 110px 24px 60px; }
+  .hero-right { display: none; }
+  #about { grid-template-columns: 1fr; padding: 80px 24px; }
+  #projects { padding: 80px 24px; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .proj-featured { grid-column: span 1; }
+  #process { padding: 80px 24px; }
+  .process-grid { grid-template-columns: 1fr 1fr; }
+  #contact { padding: 80px 24px; }
+  .form-row { grid-template-columns: 1fr; }
+  footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+  .section-top { flex-direction: column; align-items: flex-start; gap: 20px; }
+  #drift-cards { padding: 80px 0; }
+}
+
+@media (max-width: 480px) {
+  .hero-line { gap: 8px; }
+  .ht-plain, .ht-serif { font-size: clamp(2rem, 8vw, 3rem); }
+  .hero-pill.pill-photo, .hero-pill.pill-icon { width: 52px; height: 52px; font-size: 1.5rem; }
+  .hero-pill.pill-lg, .hero-cube-wrap { width: 58px; height: 58px; }
+  .orb1 { width: 200px; height: 200px; }
+  .orb2 { width: 160px; height: 160px; }
+  .mob-nav-links a { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cur-dot" style="position:fixed"></div>
+<div class="cursor" id="cur-ring" style="position:fixed"></div>
+
+<!-- Mobile nav overlay (backdrop) -->
+
+<!-- Mobile nav panel -->
+<div class="mob-panel" id="mobPanel">
+  
+  <nav class="mob-nav-links">
+    
+      
+       <a href="#about" class="mob-link">About</a>
+    <a href="#projects" class="mob-link">Work</a>
+    <a href="#process" class="mob-link">Process</a>
+    <a href="#contact" class="mob-link mob-cta">Hire Me ↗</a>
+   
+  </nav>
+  
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Dev<span>.</span>Portfolio</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#projects">Work</a>
+    <a href="#process">Process</a>
+    <a href="#contact" class="nav-cta">Hire Me</a>
+  </div>
+  <!-- Hamburger button -->
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</nav>
+
+<!-- HERO — Editorial -->
+<section id="hero">
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+
+  <div class="hero-editorial">
+    <div class="hero-line">
+      <span class="ht-plain">I build</span>
+      <div class="hero-pill pill-photo">
+        <img src="me.jpg" alt="Developer">
+      </div>
+      <span class="ht-serif ht-accent">immersive</span>
+    </div>
+    <div class="hero-line">
+      <div class="hero-cube-wrap">
+        <div class="hero-cube">
+          <div class="hero-cube-face face-front">🎮</div>
+          <div class="hero-cube-face face-back">⚡</div>
+          <div class="hero-cube-face face-right">🌌</div>
+          <div class="hero-cube-face face-left">🔥</div>
+          <div class="hero-cube-face face-top">⚔️</div>
+          <div class="hero-cube-face face-bottom">🚀</div>
+        </div>
+      </div>
+      <span class="ht-serif">worlds</span>
+      <span class="ht-plain">&amp; games</span>
+    </div>
+    <div class="hero-line">
+      <span class="ht-plain">worth</span>
+      <div class="hero-pill pill-lg">🏆</div>
+      <span class="ht-serif ht-accent">playing.</span>
+    </div>
+    <p class="hero-sub">Game developer crafting immersive experiences — from gameplay mechanics to 3D environments — with Unity, Unreal Engine, and a passion for great design.</p>
+    <div class="hero-cta-row">
+      <a href="#projects" class="btn-dark">See My Work</a>
+      <a href="#contact" class="btn-outline">Let's Talk →</a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Unity <span>✦</span></div>
+    <div class="marquee-item">Unreal Engine <span>✦</span></div>
+    <div class="marquee-item">C# &amp; C++ <span>✦</span></div>
+    <div class="marquee-item">3D Modeling <span>✦</span></div>
+    <div class="marquee-item">Shader Graph <span>✦</span></div>
+    <div class="marquee-item">Game Physics <span>✦</span></div>
+    <div class="marquee-item">Level Design <span>✦</span></div>
+    <div class="marquee-item">Multiplayer <span>✦</span></div>
+    <div class="marquee-item">Blender <span>✦</span></div>
+    <div class="marquee-item">AI Behavior <span>✦</span></div>
+    <div class="marquee-item">Unity <span>✦</span></div>
+    <div class="marquee-item">Unreal Engine <span>✦</span></div>
+    <div class="marquee-item">C# &amp; C++ <span>✦</span></div>
+    <div class="marquee-item">3D Modeling <span>✦</span></div>
+    <div class="marquee-item">Shader Graph <span>✦</span></div>
+    <div class="marquee-item">Game Physics <span>✦</span></div>
+    <div class="marquee-item">Level Design <span>✦</span></div>
+    <div class="marquee-item">Multiplayer <span>✦</span></div>
+    <div class="marquee-item">Blender <span>✦</span></div>
+    <div class="marquee-item">AI Behavior <span>✦</span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-left reveal">
+    <span class="about-label">// About Me</span>
+    <h2 class="about-heading">Passionate<br>about <em>interactive</em><br>experiences.</h2>
+    <p class="about-body">I'm a game developer who transforms ideas into fully playable worlds. My work spans gameplay systems, procedural generation, shader programming, and everything in between.</p>
+    <p class="about-body">Whether it's a jam entry built in 48 hours or a polished commercial title, I bring the same level of care and craft to every pixel and polygon.</p>
+    <div class="skill-chips">
+      <span class="chip">Unity</span>
+      <span class="chip">Unreal Engine 5</span>
+      <span class="chip">C# / C++</span>
+      <span class="chip">Blender</span>
+      <span class="chip">Shader Graph</span>
+      <span class="chip">HLSL / GLSL</span>
+      <span class="chip">Procedural Gen</span>
+      <span class="chip">Multiplayer / Netcode</span>
+      <span class="chip">Level Design</span>
+      <span class="chip">Game AI</span>
+    </div>
+  </div>
+  <div class="about-right reveal reveal-delay-2">
+    <div class="stat-box reveal reveal-delay-1">
+      <span class="stat-n" data-target="12">0</span>
+      <span class="stat-l">Games Built</span>
+    </div>
+    <div class="stat-box accent-box reveal reveal-delay-2">
+      <span class="stat-n" data-target="3">0</span>
+      <span class="stat-l">Years Exp.</span>
+    </div>
+    <div class="stat-box purple-box reveal reveal-delay-3">
+      <span class="stat-n" data-target="5">0</span>
+      <span class="stat-l">Jam Wins</span>
+    </div>
+    <div class="stat-box reveal reveal-delay-4">
+      <span class="stat-n" data-target="2">0</span>
+      <span class="stat-l">Shipped Titles</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-top reveal">
+    <div>
+      <span class="about-label">// Selected Work</span>
+      <h2 class="section-heading">Games I've<br><em>built</em></h2>
+    </div>
+    <a href="#contact" class="view-all">View All Work</a>
+  </div>
+  <div class="projects-grid">
+    <div class="proj-card proj-featured reveal" id="pc1">
+      <div class="proj-thumb">
+        <div class="bg-gradient" style="background:linear-gradient(135deg,#1a0533,#3d1a78,#1a0533)"></div>
+        <span class="emoji">🌌</span>
+      </div>
+      <div class="proj-body">
+        <span class="proj-num">Project 01</span>
+        <div class="proj-title">Nebula Drift</div>
+        <p class="proj-desc">Space survival roguelite with procedurally generated star systems, dynamic enemy AI, and a narrative that adapts to your choices. 1200+ player downloads.</p>
+        <div class="proj-footer">
+          <div class="proj-tags-mini"><span class="tag-mini">Unity</span><span class="tag-mini">C#</span><span class="tag-mini">Procedural</span></div>
+          <div class="proj-arrow">→</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-card reveal reveal-delay-1" id="pc2">
+      <div class="proj-thumb">
+        <div class="bg-gradient" style="background:linear-gradient(135deg,#2d0a0a,#8b1a1a,#2d0a0a)"></div>
+        <span class="emoji">⚔️</span>
+      </div>
+      <div class="proj-body">
+        <span class="proj-num">Project 02</span>
+        <div class="proj-title">Iron Citadel</div>
+        <p class="proj-desc">First-person dungeon crawler in Unreal Engine 5. Nanite geometry, Lumen GI, satisfying melee combat.</p>
+        <div class="proj-footer">
+          <div class="proj-tags-mini"><span class="tag-mini">UE5</span><span class="tag-mini">C++</span><span class="tag-mini">Lumen</span></div>
+          <div class="proj-arrow">→</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-card reveal reveal-delay-1" id="pc3">
+      <div class="proj-thumb">
+        <div class="bg-gradient" style="background:linear-gradient(135deg,#001a33,#003d80,#001a33)"></div>
+        <span class="emoji">🤖</span>
+      </div>
+      <div class="proj-body">
+        <span class="proj-num">Project 03</span>
+        <div class="proj-title">Circuit Breaker</div>
+        <p class="proj-desc">Twin-stick shooter with an adaptive soundtrack and enemies that learn from player behavior over time.</p>
+        <div class="proj-footer">
+          <div class="proj-tags-mini"><span class="tag-mini">Unity</span><span class="tag-mini">AI/ML</span><span class="tag-mini">FMOD</span></div>
+          <div class="proj-arrow">→</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-card reveal reveal-delay-2" id="pc4">
+      <div class="proj-thumb">
+        <div class="bg-gradient" style="background:linear-gradient(135deg,#0a1a0a,#1a5c1a,#0a1a0a)"></div>
+        <span class="emoji">🌿</span>
+      </div>
+      <div class="proj-body">
+        <span class="proj-num">Project 04</span>
+        <div class="proj-title">Echoes of Aether</div>
+        <p class="proj-desc">Atmospheric puzzle-adventure with custom watercolor shader work and a haunting environmental narrative.</p>
+        <div class="proj-footer">
+          <div class="proj-tags-mini"><span class="tag-mini">Unity</span><span class="tag-mini">HLSL</span><span class="tag-mini">Shader</span></div>
+          <div class="proj-arrow">→</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-card reveal reveal-delay-2" id="pc5">
+      <div class="proj-thumb">
+        <div class="bg-gradient" style="background:linear-gradient(135deg,#1a0d00,#7c4a00,#1a0d00)"></div>
+        <span class="emoji">🏎️</span>
+      </div>
+      <div class="proj-body">
+        <span class="proj-num">Project 05</span>
+        <div class="proj-title">Velocity Null</div>
+        <p class="proj-desc">Anti-gravity racing inspired by WipeOut. Custom physics sim, neon tracks, 8-player online multiplayer.</p>
+        <div class="proj-footer">
+          <div class="proj-tags-mini"><span class="tag-mini">Unity</span><span class="tag-mini">Netcode</span><span class="tag-mini">Physics</span></div>
+          <div class="proj-arrow">→</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-card reveal reveal-delay-3" id="pc6">
+      <div class="proj-thumb">
+        <div class="bg-gradient" style="background:linear-gradient(135deg,#0d0d1a,#1a1a5c,#0d0d1a)"></div>
+        <span class="emoji">👻</span>
+      </div>
+      <div class="proj-body">
+        <span class="proj-num">Project 06 🏆</span>
+        <div class="proj-title">Hollow Protocol</div>
+        <p class="proj-desc">Co-op asymmetric horror. Built in 48 hours. Rated 9.2/10 by the game jam community. Award winner.</p>
+        <div class="proj-footer">
+          <div class="proj-tags-mini"><span class="tag-mini">Unity</span><span class="tag-mini">Co-op</span><span class="tag-mini">Jam Win</span></div>
+          <div class="proj-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-top reveal">
+    <div>
+      <span class="about-label">// How I Work</span>
+      <h2 class="section-heading">My creative<br><em>process</em></h2>
+    </div>
+  </div>
+  <div class="process-grid">
+    <div class="process-step reveal reveal-delay-1">
+      <div class="step-num">01</div>
+      <span class="step-icon">💡</span>
+      <div class="step-title">Concept & Design</div>
+      <p class="step-desc">Every great game starts with a clear vision. I define core mechanics, player experience, and scope before writing a single line of code.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-2">
+      <div class="step-num">02</div>
+      <span class="step-icon">🏗️</span>
+      <div class="step-title">Prototype Fast</div>
+      <p class="step-desc">I build rough prototypes quickly to test core gameplay loops. Fail fast, learn faster — the fun factor gets validated early.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-3">
+      <div class="step-num">03</div>
+      <span class="step-icon">🎨</span>
+      <div class="step-title">Build & Polish</div>
+      <p class="step-desc">From systems architecture to shader polish — I build every layer with care, optimizing for both performance and player feel.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-4">
+      <div class="step-num">04</div>
+      <span class="step-icon">🚀</span>
+      <div class="step-title">Ship & Iterate</div>
+      <p class="step-desc">Playtesting, bug squashing, and community feedback shape the final release. Games live and breathe post-launch.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DRIFT CARDS -->
+<section id="drift-cards">
+  <div class="drift-bg-glow g1"></div>
+  <div class="drift-bg-glow g2"></div>
+  <div class="drift-header reveal">
+    <span class="drift-label">// Skills in Action</span>
+    <h2 class="drift-title">Genres I've <em>mastered</em></h2>
+  </div>
+  <div class="drift-row-wrap">
+    <div class="drift-row" id="driftRow1">
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#0f0c29,#302b63)"></div><span class="dcard-icon">🌌</span></div><div class="dcard-info"><span class="dcard-tag">Roguelite</span><div class="dcard-title">Nebula Drift</div><div class="dcard-sub">Procedural star systems, permadeath tension, adaptive AI.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.4</span><span class="dcard-engine">Unity · C#</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a0000,#7a0000)"></div><span class="dcard-icon">⚔️</span></div><div class="dcard-info"><span class="dcard-tag">Dungeon Crawler</span><div class="dcard-title">Iron Citadel</div><div class="dcard-sub">UE5 Nanite + Lumen. Melee combat with real weight and impact.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.1</span><span class="dcard-engine">UE5 · C++</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#001a00,#005c00)"></div><span class="dcard-icon">🌿</span></div><div class="dcard-info"><span class="dcard-tag">Puzzle Adventure</span><div class="dcard-title">Echoes of Aether</div><div class="dcard-sub">Watercolor shaders, ambient audio, environmental narrative.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.9</span><span class="dcard-engine">HLSL · Shader Graph</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#00111a,#004466)"></div><span class="dcard-icon">🤖</span></div><div class="dcard-info"><span class="dcard-tag">Twin-Stick Shooter</span><div class="dcard-title">Circuit Breaker</div><div class="dcard-sub">Enemies that learn your playstyle. Adaptive FMOD soundtrack.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.0</span><span class="dcard-engine">Unity · ML-Agents</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a0d00,#7c3a00)"></div><span class="dcard-icon">🏎️</span></div><div class="dcard-info"><span class="dcard-tag">Racing</span><div class="dcard-title">Velocity Null</div><div class="dcard-sub">Anti-gravity WipeOut-style. 8-player online. Neon tracks.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.7</span><span class="dcard-engine">Unity · Netcode</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#0d0d1a,#1a1a6b)"></div><span class="dcard-icon">👻</span></div><div class="dcard-info"><span class="dcard-tag">Horror · Co-op</span><div class="dcard-title">Hollow Protocol</div><div class="dcard-sub">Asymmetric co-op horror. 48h jam. Community rated 9.2/10.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.2</span><span class="dcard-engine">Unity · Co-op</span></div></div></div>
+      <!-- duplicates -->
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#0f0c29,#302b63)"></div><span class="dcard-icon">🌌</span></div><div class="dcard-info"><span class="dcard-tag">Roguelite</span><div class="dcard-title">Nebula Drift</div><div class="dcard-sub">Procedural star systems, permadeath tension, adaptive AI.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.4</span><span class="dcard-engine">Unity · C#</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a0000,#7a0000)"></div><span class="dcard-icon">⚔️</span></div><div class="dcard-info"><span class="dcard-tag">Dungeon Crawler</span><div class="dcard-title">Iron Citadel</div><div class="dcard-sub">UE5 Nanite + Lumen. Melee combat with real weight and impact.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.1</span><span class="dcard-engine">UE5 · C++</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#001a00,#005c00)"></div><span class="dcard-icon">🌿</span></div><div class="dcard-info"><span class="dcard-tag">Puzzle Adventure</span><div class="dcard-title">Echoes of Aether</div><div class="dcard-sub">Watercolor shaders, ambient audio, environmental narrative.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.9</span><span class="dcard-engine">HLSL · Shader Graph</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#00111a,#004466)"></div><span class="dcard-icon">🤖</span></div><div class="dcard-info"><span class="dcard-tag">Twin-Stick Shooter</span><div class="dcard-title">Circuit Breaker</div><div class="dcard-sub">Enemies that learn your playstyle. Adaptive FMOD soundtrack.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.0</span><span class="dcard-engine">Unity · ML-Agents</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a0d00,#7c3a00)"></div><span class="dcard-icon">🏎️</span></div><div class="dcard-info"><span class="dcard-tag">Racing</span><div class="dcard-title">Velocity Null</div><div class="dcard-sub">Anti-gravity WipeOut-style. 8-player online. Neon tracks.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.7</span><span class="dcard-engine">Unity · Netcode</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#0d0d1a,#1a1a6b)"></div><span class="dcard-icon">👻</span></div><div class="dcard-info"><span class="dcard-tag">Horror · Co-op</span><div class="dcard-title">Hollow Protocol</div><div class="dcard-sub">Asymmetric co-op horror. 48h jam. Community rated 9.2/10.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.2</span><span class="dcard-engine">Unity · Co-op</span></div></div></div>
+    </div>
+  </div>
+  <div class="drift-row-wrap">
+    <div class="drift-row" id="driftRow2">
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a1200,#7c5200)"></div><span class="dcard-icon">🧙</span></div><div class="dcard-info"><span class="dcard-tag">RPG</span><div class="dcard-title">Ashveil Chronicles</div><div class="dcard-sub">Open-world RPG. Dialogue trees, faction system, crafting.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.3</span><span class="dcard-engine">UE5 · Blueprint</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#001433,#0044aa)"></div><span class="dcard-icon">🌊</span></div><div class="dcard-info"><span class="dcard-tag">Simulation</span><div class="dcard-title">Depth Zero</div><div class="dcard-sub">Underwater exploration sim. FFT ocean, volumetric caustics.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.8</span><span class="dcard-engine">Unity · HDRP</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a001a,#660066)"></div><span class="dcard-icon">🎵</span></div><div class="dcard-info"><span class="dcard-tag">Rhythm</span><div class="dcard-title">Beat Fractured</div><div class="dcard-sub">Procedural music generation synced to visuals. Pure flow state.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.5</span><span class="dcard-engine">Unity · FMOD</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#0a1a0a,#2a6b2a)"></div><span class="dcard-icon">🏕️</span></div><div class="dcard-info"><span class="dcard-tag">Survival</span><div class="dcard-title">Verdant Fall</div><div class="dcard-sub">Crafting, base building, dynamic weather. 4-player co-op.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.6</span><span class="dcard-engine">Unity · Netcode</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a0a00,#8b3300)"></div><span class="dcard-icon">🤺</span></div><div class="dcard-info"><span class="dcard-tag">Action Platformer</span><div class="dcard-title">Ember Rush</div><div class="dcard-sub">Tight controls, hand-crafted levels, speedrun-ready design.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.0</span><span class="dcard-engine">Unity · C#</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#001a1a,#006666)"></div><span class="dcard-icon">🧩</span></div><div class="dcard-info"><span class="dcard-tag">Strategy</span><div class="dcard-title">Gridlock Protocol</div><div class="dcard-sub">Turn-based tactics. Fog of war, unit synergies, map editor.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.8</span><span class="dcard-engine">Unity · C#</span></div></div></div>
+      <!-- duplicates -->
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a1200,#7c5200)"></div><span class="dcard-icon">🧙</span></div><div class="dcard-info"><span class="dcard-tag">RPG</span><div class="dcard-title">Ashveil Chronicles</div><div class="dcard-sub">Open-world RPG. Dialogue trees, faction system, crafting.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.3</span><span class="dcard-engine">UE5 · Blueprint</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#001433,#0044aa)"></div><span class="dcard-icon">🌊</span></div><div class="dcard-info"><span class="dcard-tag">Simulation</span><div class="dcard-title">Depth Zero</div><div class="dcard-sub">Underwater exploration sim. FFT ocean, volumetric caustics.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.8</span><span class="dcard-engine">Unity · HDRP</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a001a,#660066)"></div><span class="dcard-icon">🎵</span></div><div class="dcard-info"><span class="dcard-tag">Rhythm</span><div class="dcard-title">Beat Fractured</div><div class="dcard-sub">Procedural music generation synced to visuals. Pure flow state.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.5</span><span class="dcard-engine">Unity · FMOD</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#0a1a0a,#2a6b2a)"></div><span class="dcard-icon">🏕️</span></div><div class="dcard-info"><span class="dcard-tag">Survival</span><div class="dcard-title">Verdant Fall</div><div class="dcard-sub">Crafting, base building, dynamic weather. 4-player co-op.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.6</span><span class="dcard-engine">Unity · Netcode</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#1a0a00,#8b3300)"></div><span class="dcard-icon">🤺</span></div><div class="dcard-info"><span class="dcard-tag">Action Platformer</span><div class="dcard-title">Ember Rush</div><div class="dcard-sub">Tight controls, hand-crafted levels, speedrun-ready design.</div><div class="dcard-foot"><span class="dcard-stars">★★★★★ 9.0</span><span class="dcard-engine">Unity · C#</span></div></div></div>
+      <div class="dcard"><div class="dcard-img"><div class="dcard-grad" style="background:linear-gradient(135deg,#001a1a,#006666)"></div><span class="dcard-icon">🧩</span></div><div class="dcard-info"><span class="dcard-tag">Strategy</span><div class="dcard-title">Gridlock Protocol</div><div class="dcard-sub">Turn-based tactics. Fog of war, unit synergies, map editor.</div><div class="dcard-foot"><span class="dcard-stars">★★★★☆ 8.8</span><span class="dcard-engine">Unity · C#</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="contact-inner">
+    <span class="contact-label">// Get in Touch</span>
+    <h2 class="contact-heading reveal">Let's build<br>something <em>great.</em></h2>
+    <p class="contact-sub reveal">Have a project in mind? Want to collaborate? I'm always open to exciting game dev opportunities.</p>
+    <form class="contact-form reveal" onsubmit="return false;">
+      <div class="form-row">
+        <input type="text" placeholder="Your Name">
+        <input type="email" placeholder="Your Email">
+      </div>
+      <input type="text" placeholder="Project / Subject">
+      <textarea placeholder="Tell me about your project..."></textarea>
+      <button class="btn-accent">Send Message ↗</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Dev.Portfolio</div>
+  <div>© 2025 — Game Developer Portfolio</div>
+  <div>Crafted with 🎮 & ☕</div>
+</footer>
+
+<script>
+// ─── CURSOR ───
+const dot = document.getElementById('cur-dot');
+const ring = document.getElementById('cur-ring');
+document.addEventListener('mousemove', e => {
+  dot.style.left = e.clientX + 'px';
+  dot.style.top = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  }, 80);
+});
+document.querySelectorAll('a,button,.proj-card,.stat-box').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.style.width = '60px'; ring.style.height = '60px'; ring.style.opacity = '0.2'; });
+  el.addEventListener('mouseleave', () => { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.opacity = '0.4'; });
+});
+
+// ─── MOBILE NAV ───
+const hamburger = document.getElementById('hamburger');
+const mobPanel  = document.getElementById('mobPanel');
+const mobOverlay = null; // removed - panel is fullscreen
+
+const navEl = document.querySelector('nav');
+
+function openNav() {
+  hamburger.classList.add('open');
+  mobPanel.classList.add('open');
+  navEl.classList.add('menu-open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNav() {
+  hamburger.classList.remove('open');
+  mobPanel.classList.remove('open');
+  navEl.classList.remove('menu-open');
+  document.body.style.overflow = '';
+}
+
+hamburger.addEventListener('click', () => {
+  hamburger.classList.contains('open') ? closeNav() : openNav();
+});
+
+// Close on nav link click
+document.querySelectorAll('.mob-link').forEach(link => {
+  link.addEventListener('click', closeNav);
+});
+
+// ─── HERO PARALLAX ───
+const orbs = document.querySelectorAll('.hero-orb');
+document.addEventListener('mousemove', e => {
+  const mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+  const my = (e.clientY / window.innerHeight - 0.5) * 2;
+  orbs.forEach((orb, i) => {
+    const depth = [0.025, 0.018, 0.03][i] || 0.02;
+    orb.style.transform = `translate(${mx * 40 * depth * 100}px, ${my * 40 * depth * 100}px)`;
+  });
+});
+
+// ─── 3D TILT CARDS ───
+document.querySelectorAll('.proj-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const rx = (e.clientY - cy) / rect.height * -8;
+    const ry = (e.clientX - cx) / rect.width * 8;
+    card.style.transform = `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+    card.style.transition = 'transform 0.05s linear, box-shadow 0.3s';
+    card.style.boxShadow = '0 30px 60px rgba(0,0,0,0.15)';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(600px) rotateX(0) rotateY(0) translateY(0)';
+    card.style.transition = 'transform 0.5s ease, box-shadow 0.5s';
+    card.style.boxShadow = '';
+  });
+});
+
+// ─── SCROLL REVEAL ───
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.1 });
+reveals.forEach(r => obs.observe(r));
+
+// ─── DRIFT ROWS ───
+const driftRow1 = document.getElementById('driftRow1');
+const driftRow2 = document.getElementById('driftRow2');
+const driftSection = document.getElementById('drift-cards');
+
+function updateDrift() {
+  if (!driftRow1 || !driftRow2 || !driftSection) return;
+  const rect = driftSection.getBoundingClientRect();
+  const winH = window.innerHeight;
+  const progress = 1 - (rect.bottom / (winH + rect.height));
+  const travel = (progress - 0.5) * 500;
+  driftRow1.style.transform = `translateX(${-travel}px)`;
+  driftRow2.style.transform = `translateX(${travel}px)`;
+}
+driftRow1.style.transform = 'translateX(200px)';
+driftRow2.style.transform = 'translateX(-200px)';
+window.addEventListener('scroll', updateDrift, { passive: true });
+updateDrift();
+
+// ─── COUNTERS ───
+const counters = document.querySelectorAll('[data-target]');
+const cObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const el = e.target, target = +el.dataset.target;
+      let cur = 0, step = target / 40;
+      const t = setInterval(() => {
+        cur += step; if(cur >= target){ cur = target; clearInterval(t); }
+        el.textContent = Math.floor(cur);
+      }, 40);
+      cObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(c => cObs.observe(c));
+</script>
+</body>
+</html>
